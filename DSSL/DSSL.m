@@ -1,4 +1,3 @@
-%function [W] = DRAGD(X,Z,Ys,alpha,beta,lambda3,miu,rho,max_iter,max_iter_diffusion)
 function [ACC,obj,pseudo_label,iter] = DSSL(X,Xs,Xt,c,Ys,Yt,max_iter_num,alpha,beta,lambda,gamma)
 
 %%
@@ -28,7 +27,6 @@ for j = 1:n
     end
     S(j,:) = S(j,:)/d_sum;
 end
-%¶Ô³Æ»¯¹éÒ»»¯
 S = (S+S')/2;
 D = diag(sum(S));
 L = D - S;
@@ -48,7 +46,6 @@ Ly = Dy - Sy;
 
 for iter = 1:max_iter_num
 
-    
     %upadate P
     D_weight = diag( 0.5./sqrt(sum(P.*P,2)+eps));
     P = inv(2*X*X'+ 2*beta*D_weight+gamma*X*L*X'+gamma*X*L'*X'+2*alpha*Im)*2*(1+alpha)*X*H;
@@ -100,7 +97,7 @@ for iter = 1:max_iter_num
     norm21 = sum(sqrt(sum(P.^2,2)));
     %print OBJ
     obj(iter)=norm(X'*P-H,'fro')+alpha*norm(X-P*H','fro')+beta*norm21+lambda*norm(H-(F+B.*M),'fro')+gamma*(trace(P'*X*L*X'*P)+trace(F'*Ly*F));
-    %ÊÕÁ²ÔçÍ£
+    %æ”¶æ•›æ—©åœ
     if (iter>1 &&(abs(double(obj(iter))-double(obj(iter-1)))< 10^-3))
         break;
     end
@@ -110,29 +107,30 @@ end
 
 num_train = size(Xs, 2); 
 H = H';
-H = H./repmat(sqrt(sum(H.^2)),size(H,1),1); % ÁÐ¹éÒ»»¯
+H = H./repmat(sqrt(sum(H.^2)),size(H,1),1); 
 
 if num_train < size(H,2)
-    Hs = H(:, 1:num_train);  % ÑµÁ·Ñù±¾²¿·Ö
-    Ht = H(:, num_train+1:end); % ²âÊÔÑù±¾²¿·Ö
+    Hs = H(:, 1:num_train);  
+    Ht = H(:, num_train+1:end); 
 else
-    error('Ë÷Òý³¬³ö·¶Î§: num_train ´óÓÚ H µÄÁÐÊý');
+    error('ç´¢å¼•è¶…å‡ºèŒƒå›´: num_train å¤§äºŽ H çš„åˆ—æ•°');
 end
 
-% SVM ÑµÁ·
+% SVM è®­ç»ƒ
 tmd = ['-s 0 -t 2 -g ' num2str(1e-3) ' -c ' num2str(1000)];
 model = svmtrain(Ys, Hs', tmd);
 
-% Ô¤²â
+% é¢„æµ‹
 if isempty(model)
-    error('SVM ÑµÁ·Ê§°Ü£¬Ä£ÐÍÎª¿Õ£¡');
+    error('SVM è®­ç»ƒå¤±è´¥ï¼Œæ¨¡åž‹ä¸ºç©ºï¼');
 end
 
 [predict, ACC,~] = svmpredict(Yt, Ht', model);
 
 pseudo_label = predict;
 
-ACC = ACC(1); % ÌáÈ¡×¼È·ÂÊ
+ACC = ACC(1);
+
 
 
 
