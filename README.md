@@ -1,3 +1,3 @@
 # DSSL
 run:
-run demo.m
+demo.m
